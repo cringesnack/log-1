@@ -1,0 +1,105 @@
+﻿#define _CRT_SECURE_NO_WARNINGS
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <wchar.h>
+#include <io.h>
+#include <fcntl.h>
+#include <locale.h>
+
+struct student
+{
+    wchar_t famil[20];
+    wchar_t name[20];
+    wchar_t facult[20];
+    int Nomzach;
+};
+
+int main(void)
+{
+    _setmode(_fileno(stdin), _O_U16TEXT);
+    _setmode(_fileno(stdout), _O_U16TEXT);
+
+    setlocale(LC_ALL, "");
+
+    int n;
+    int i;
+    int found = 0;
+
+    struct student* stud;
+
+    wprintf(L"Введите количество студентов: ");
+    wscanf(L"%d", &n);
+
+    if (n <= 0)
+    {
+        wprintf(L"Количество студентов должно быть больше 0.\n");
+        return 1;
+    }
+
+    stud = (struct student*)malloc(n * sizeof(struct student));
+
+    if (stud == NULL)
+    {
+        wprintf(L"Не удалось выделить память.\n");
+        return 1;
+    }
+
+    // ввод данных студентов
+
+    for (i = 0; i < n; i++)
+    {
+        wprintf(L"\nСтудент №%d\n", i + 1);
+
+        wprintf(L"Фамилия: ");
+        wscanf(L"%19ls", stud[i].famil);
+
+        wprintf(L"Имя: ");
+        wscanf(L"%19ls", stud[i].name);
+
+        wprintf(L"Факультет: ");
+        wscanf(L"%19ls", stud[i].facult);
+
+        wprintf(L"Номер зачётной книжки: ");
+        wscanf(L"%d", &stud[i].Nomzach);
+    }
+
+    //поиск
+
+    wchar_t searchFamil[20];
+
+    wprintf(L"\nВведите часть фамилии для поиска: ");
+    wscanf(L"%19ls", searchFamil);
+
+    wprintf(L"\nРезультаты поиска:\n");
+
+    for (i = 0; i < n; i++)
+    {
+        int len = (int)wcslen(searchFamil);
+        int j;
+
+        for (j = 0; stud[i].famil[j] != L'\0'; j++)
+        {
+            if (_wcsnicmp(&stud[i].famil[j], searchFamil, len) == 0)
+            {
+                wprintf(L"\nСтудент найден!\n");
+                wprintf(L"Фамилия: %ls\n", stud[i].famil);
+                wprintf(L"Имя: %ls\n", stud[i].name);
+                wprintf(L"Факультет: %ls\n", stud[i].facult);
+                wprintf(L"Номер зачётной книжки: %d\n", stud[i].Nomzach);
+
+                found = 1;
+                break;
+            }
+        }
+    }
+
+    if (found == 0)
+    {
+        wprintf(L"Студенты с такой частью фамилии не найдены.\n");
+    }
+
+    free(stud);
+
+    return 0;
+}
